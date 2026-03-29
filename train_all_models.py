@@ -1,5 +1,5 @@
 """
-TRAINING GUIDE - Kişi 2'nin Adım Adım Eğitim Kılavuzu
+TRAINING GUIDE - Kişi 2'nin Adım Adım Training Kılavuzu
 =====================================================
 
 Bu script Kişi 1'in verilerini alarak sınıflandırma ve 
@@ -55,7 +55,7 @@ def load_person1_data(data_path: str) -> pd.DataFrame:
         logger.info(f"Label dağılımı:\n{df['label'].value_counts()}")
         return df
     except Exception as e:
-        logger.error(f"Veri yükleme hatası: {e}")
+        logger.error(f"Veri yükleme errorsı: {e}")
         raise
 
 
@@ -70,12 +70,12 @@ def train_classification_models(X_train: np.ndarray, X_test: np.ndarray,
     2. Neural Network (Deep Learning)
     
     Args:
-        X_train, X_test: Eğitim ve test özellikleri
-        y_train, y_test: Eğitim ve test etiketleri
+        X_train, X_test: Training ve test özellikleri
+        y_train, y_test: Training ve test etiketleri
         models_dir: Model kayıt dizini
         
     Returns:
-        dict: Tüm modellerle ilgili bilgiler
+        dict: Tüm modellerle ilgili infoler
     """
     logger.info("="*60)
     logger.info("SINIFLAMA MODELLERİ EĞİTİMİ BAŞLANIYOR")
@@ -112,7 +112,7 @@ def train_classification_models(X_train: np.ndarray, X_test: np.ndarray,
         logger.info(f"  F1: {lr_metrics['f1']:.4f}")
         
     except Exception as e:
-        logger.error(f"Logistic Regression eğitim hatası: {e}")
+        logger.error(f"Logistic Regression eğitim errorsı: {e}")
         results['logistic_regression'] = {'trained': False, 'error': str(e)}
     
     # 2. NEURAL NETWORK
@@ -155,7 +155,7 @@ def train_classification_models(X_train: np.ndarray, X_test: np.ndarray,
         logger.info(f"  F1: {nn_metrics['f1']:.4f}")
         
     except Exception as e:
-        logger.error(f"Neural Network eğitim hatası: {e}")
+        logger.error(f"Neural Network eğitim errorsı: {e}")
         results['neural_network'] = {'trained': False, 'error': str(e)}
     
     return results
@@ -178,7 +178,7 @@ def train_forecasting_models(timeseries_data: np.ndarray,
         models_dir: Model kayıt dizini
         
     Returns:
-        dict: Tüm modellerle ilgili bilgiler
+        dict: Tüm modellerle ilgili infoler
     """
     logger.info("\n" + "="*60)
     logger.info("TAHMİNLEME MODELLERİ EĞİTİMİ BAŞLANIYOR")
@@ -203,7 +203,7 @@ def train_forecasting_models(timeseries_data: np.ndarray,
         # Tahmin yap
         forecast_lf = lf.forecast(steps=len(y_test), last_sequence=y_train[-24:])
         
-        # Değerlendir
+        # Evaluate
         lf_eval = ForecastingEvaluator()
         lf_metrics = lf_eval.evaluate(y_test, forecast_lf[:len(y_test)])
         
@@ -223,7 +223,7 @@ def train_forecasting_models(timeseries_data: np.ndarray,
         logger.info(f"  R2: {lf_metrics['r2']:.4f}")
         
     except Exception as e:
-        logger.error(f"Linear Forecaster eğitim hatası: {e}")
+        logger.error(f"Linear Forecaster eğitim errorsı: {e}")
         results['linear'] = {'trained': False, 'error': str(e)}
     
     # 2. ARIMA
@@ -235,7 +235,7 @@ def train_forecasting_models(timeseries_data: np.ndarray,
         # Tahmin yap
         forecast_af = af.forecast(steps=len(y_test))
         
-        # Değerlendir
+        # Evaluate
         af_eval = ForecastingEvaluator()
         af_metrics = af_eval.evaluate(y_test, forecast_af[:len(y_test)])
         
@@ -255,7 +255,7 @@ def train_forecasting_models(timeseries_data: np.ndarray,
         logger.info(f"  R2: {af_metrics['r2']:.4f}")
         
     except Exception as e:
-        logger.error(f"ARIMA eğitim hatası: {e}")
+        logger.error(f"ARIMA eğitim errorsı: {e}")
         results['arima'] = {'trained': False, 'error': str(e)}
     
     # 3. PROPHET
@@ -272,7 +272,7 @@ def train_forecasting_models(timeseries_data: np.ndarray,
         # Tahmin yap
         forecast_pf, lower_pf, upper_pf = pf.forecast(steps=len(y_test), freq='h')
         
-        # Değerlendir
+        # Evaluate
         pf_eval = ForecastingEvaluator()
         pf_metrics = pf_eval.evaluate(y_test, forecast_pf[:len(y_test)])
         
@@ -292,7 +292,7 @@ def train_forecasting_models(timeseries_data: np.ndarray,
         logger.info(f"  R2: {pf_metrics['r2']:.4f}")
         
     except Exception as e:
-        logger.error(f"Prophet eğitim hatası: {e}")
+        logger.error(f"Prophet eğitim errorsı: {e}")
         results['prophet'] = {'trained': False, 'error': str(e)}
     
     return results
@@ -301,7 +301,7 @@ def train_forecasting_models(timeseries_data: np.ndarray,
 def generate_training_report(clf_results: dict, fcst_results: dict,
                             output_file: str = 'training_report.json'):
     """
-    Eğitim raporunu oluştur.
+    Training raporunu oluştur.
     
     Args:
         clf_results: Sınıflandırma sonuçları
@@ -333,7 +333,7 @@ def generate_training_report(clf_results: dict, fcst_results: dict,
     # Konsola yazdır
     logger.info("\nÖZET:")
     logger.info(f"  Sınıflandırma Modelleri: {report['summary']['total_classification_models']}")
-    logger.info(f"  Tahminleme Modelleri: {report['summary']['total_forecasting_models']}")
+    logger.info(f"  Forecasting Models: {report['summary']['total_forecasting_models']}")
 
 
 def main():
@@ -375,7 +375,7 @@ def main():
             label_col='label'
         )
         
-        # Normalizasyon
+        # Normalization
         X_train_norm, X_test_norm = preprocessor.normalize_features(X_train, X_test)
         
         logger.info("✓ Veri hazırlandı")
@@ -396,7 +396,7 @@ def main():
         return 0
         
     except Exception as e:
-        logger.error(f"Eğitim pipeline hatası: {e}", exc_info=True)
+        logger.error(f"Training pipeline errorsı: {e}", exc_info=True)
         return 1
 
 

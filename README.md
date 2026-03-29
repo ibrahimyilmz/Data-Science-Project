@@ -1,52 +1,52 @@
-# Data Science Project - Enerji Tüketim Analizi ve Tahminlemesi
+# Data Science Project - Energy Consumption Analysis and Forecasting
 
-**Ekip Bölümü:**
-- **Kişi 1**: Veri Mimarı ve Clustering Uzmanı
-- **Kişi 2**: Model Mimarı (Classification & Forecasting) ← *Siz burada*
-- **Kişi 3**: Entegratör ve Üretken AI Uzmanı
-
----
-
-## 📋 Proje Özeti
-
-Bu proje, Enedis kaynaklı enerji tüketim verilerini analiz ederek:
-1. **Evleri sınıflandırma**: Birincil (RP) veya ikincil (RS) konut olup olmadığını belirlemek
-2. **Gelecek tüketimi tahminleme**: 24 saat ileri enerji tüketimi öngörmek
-3. **İnteraktif Dashboard**: Streamlit tabanlı kullanıcı arayüzü sağlamak
+**Team Division:**
+- **Person 1**: Data Architect and Clustering Expert
+- **Person 2**: Model Architect (Classification & Forecasting) ← **You are here**
+- **Person 3**: Integrator and Generative AI Expert
 
 ---
 
-## 🏗️ Proje Yapısı
+## 📋 Project Overview
+
+By analyzing energy consumption data from Enedis:
+1. **Classify houses**: Determine whether they are primary (RP) or secondary (RS) residences
+2. **Forecast future consumption**: Predict energy consumption 24 hours ahead
+3. **Interactive Dashboard**: Provide a Streamlit-based user interface
+
+---
+
+## 🏗️ Project Structure
 
 ```
 Data-Science-Project/
-├── src/                          # Kaynak kod
-│   ├── model_prep.py            # Veri hazırlığı ve dengeleme
-│   ├── classification.py        # Sınıflandırma modelleri (RS/RP)
-│   ├── forecasting.py           # Tahminleme modelleri
-│   ├── evaluator.py             # Model değerlendirme araçları
-│   └── integration_logic.py      # Entegrasyon katmanı
-├── models/                       # Eğitilmiş modeller (pickle/pt)
-├── data/                         # Veri setleri
-├── logs/                         # Log dosyaları
-├── requirements.txt              # Python kütüphaneleri
-└── README.md                     # Bu dosya
+├── src/                          # Source code
+│   ├── model_prep.py            # Data preparation and balancing
+│   ├── classification.py        # Classification models (RS/RP)
+│   ├── forecasting.py           # Forecasting models
+│   ├── evaluator.py             # Model evaluation tools
+│   └── integration_logic.py      # Integration layer
+├── models/                       # Trained models (pickle/pt)
+├── data/                         # Datasets
+├── logs/                         # Log files
+├── requirements.txt              # Python libraries
+└── README.md                     # This file
 ```
 
 ---
 
-## 🛠️ Kurulum
+## 🛠️ Installation
 
-### 1. Python Ortamı Kurması
+### 1. Setting up Python Environment
 
 ```bash
-# Python 3.9+ gerekli
+# Python 3.9+ required
 python --version
 
-# Virtual environment oluştur
+# Create virtual environment
 python -m venv venv
 
-# Aktivasyon
+# Activation
 # Windows:
 venv\Scripts\activate
 # macOS/Linux:
@@ -69,11 +69,11 @@ pip install -r requirements.txt
 
 ---
 
-## 📚 Kişi 2 (Sizin) Görevleriniz
+## 📚 Person 2 (Sizin) Görevleriniz
 
 ### 1. **Model Preparation** (`src/model_prep.py`)
 
-Kişi 1'den gelen veriyi eğitim için hazırlar.
+Person 1'den gelen veriyi eğitim için hazırlar.
 
 #### Sınıflar:
 - **`DataPreprocessor`**: Veri ön işleme
@@ -269,7 +269,7 @@ fig = comparator.plot_model_comparison(model_type='forecasting', metric='mae')
   - Pipeline'ı koordine et
   - Sonuçları döndür
 
-- **`DataPipeline`**: Kişi 1'in verisini hazırla
+- **`DataPipeline`**: Person 1'in verisini hazırla
   - `process_person1_data()`: Etiketlenmiş veriyi işle
   - `process_timeseries_for_forecast()`: Zaman serisini hazırla
 
@@ -287,7 +287,7 @@ integrator.load_classification_model('models/lr_classifier.pkl', model_type='log
 integrator.load_forecasting_model('arima', 'models/arima_forecaster.pkl')
 integrator.load_feature_scaler('models/scaler.pkl')
 
-# 3. Kişi 1'in verisini işle
+# 3. Person 1'in verisini işle
 pipeline = DataPipeline()
 X_features, y_labels, feature_names = pipeline.process_person1_data(df_from_person1)
 
@@ -300,7 +300,7 @@ timeseries = pipeline.process_timeseries_for_forecast(df_timeseries)
 fcst_results = integrator.forecast_consumption(timeseries, steps=24, model_name='arima')
 fcst_df = ResultsFormatter.format_forecast_results(fcst_results)
 
-# 6. Streamlit'e gönder (Kişi 3 tarafından kullanılacak)
+# 6. Streamlit'e gönder (Person 3 tarafından kullanılacak)
 print(clf_df)
 print(fcst_df)
 ```
@@ -310,12 +310,12 @@ print(fcst_df)
 ## 📊 Veri Akışı
 
 ```
-Kişi 1 (Ham Veri)
+Person 1 (Ham Veri)
     ↓
     → Özellikleri çıkar (PCA, Fourier, vb.)
     → RS/RP etiketleri ekle
     ↓
-LABELED DATA → Kişi 2 (Model Eğitimi)
+LABELED DATA → Person 2 (Model Eğitimi)
                 ↓
                 1. DataPreprocessor: Dengeleme + Normalizasyon
                 2. Classification: RS/RP Sınıflandırması
@@ -323,7 +323,7 @@ LABELED DATA → Kişi 2 (Model Eğitimi)
                 4. Evaluator: Performans değerlendirmesi
                 5. Modelleri kaydet (models/)
                 ↓
-TRAINED MODELS → Kişi 3 (Streamlit Dashboard)
+TRAINED MODELS → Person 3 (Streamlit Dashboard)
                 ↓
                 → İnteraktif UI (Tabs)
                 → Dinamik Görselleştirme
@@ -345,7 +345,7 @@ from src.evaluator import ClassificationEvaluator
 import numpy as np
 import pandas as pd
 
-# 2. Sahte veri oluştur (Kişi 1 gerçek veriyi sağlayacak)
+# 2. Sahte veri oluştur (Person 1 gerçek veriyi sağlayacak)
 np.random.seed(42)
 X_data = np.random.randn(1000, 15)
 y_data = np.random.choice(['RS', 'RP'], 1000)
@@ -452,12 +452,12 @@ logging.basicConfig(
 
 ## 👥 Ekip İletişimi
 
-### Kişi 1 → Kişi 2
+### Person 1 → Person 2
 - **Format**: `data/labeled_data.csv` veya `data/person1_features.pkl`
 - **Sütunlar**: Feature_1 ... Feature_N + label (RS/RP)
 - **Beklenti**: Etiketlenmiş, normalize edilmemiş veri
 
-### Kişi 2 → Kişi 3
+### Person 2 → Person 3
 - **Format**: Trained models in `models/` directory
 - **Interface**: `src/integration_logic.py` (ModelIntegrator sınıfı)
 - **Output**: Classification results + Forecasting predictions
@@ -475,4 +475,4 @@ Soru ve problem raporları için:
 
 **Son Güncelleme**: 29 Mart 2026
 
-**Versiyon**: 1.0 (Kişi 2 Modelleri)
+**Versiyon**: 1.0 (Person 2 Modelleri)

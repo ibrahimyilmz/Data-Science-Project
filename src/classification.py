@@ -1,16 +1,15 @@
 """
-Classification Module - Sınıflandırma Modelleri (RS/RP)
+Classification Module - Classification Models (RS/RP)
 ========================================================
-Evlerin birincil (RP) veya ikincil (RS) konut olup olmadığını
-sınıflandıran modelller içerir.
+Contains models that classify whether houses are primary (RP) or secondary (RS) residences.
 
-Modeller:
-    1. BaselineClassifier: Hızlı başlangıç için Logistic Regression
-    2. DeepClassifier: PyTorch tabanlı derin sinir ağı
+Models:
+    1. LogisticRegressionClassifier: Logistic Regression for quick start
+    2. NeuralNetworkClassifier: PyTorch-based deep neural network
     
-Hiperparametreler:
+Hyperparameters:
     - Logistic Regression: C=1.0, solver='lbfgs', max_iter=1000
-    - PyTorch NN: 3 katman, ReLU aktivasyon, Dropout=0.3
+    - PyTorch NN: 3 layers, ReLU activation, Dropout=0.3
 """
 
 import numpy as np
@@ -26,21 +25,21 @@ import logging
 from typing import Tuple, Dict, Optional, List
 from abc import ABC, abstractmethod
 
-# Logger konfigürasyonu
+# Logger configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class BaseClassifier(ABC):
     """
-    Tüm sınıflandırıcıların temel sınıfı.
+    Base class for all classifiers.
     
-    Ortak metodlar:
-    - train(): Modeli eğit
-    - predict(): Tahmin yap
-    - evaluate(): Modeli değerlendir
-    - save(): Modeli kaydet
-    - load(): Modeli yükle
+    Common methods:
+    - train(): Train model
+    - predict(): Make predictions
+    - evaluate(): Evaluate model
+    - save(): Save model
+    - load(): Load model
     """
     
     def __init__(self, name: str = "BaseClassifier"):
@@ -51,28 +50,28 @@ class BaseClassifier(ABC):
         
     @abstractmethod
     def train(self, X_train: np.ndarray, y_train: np.ndarray, **kwargs):
-        """Modeli eğit (abstract metod)"""
+        """Train model (abstract method)"""
         pass
     
     @abstractmethod
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """Tahmin yap (abstract metod)"""
+        """Make predictions (abstract method)"""
         pass
     
     def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
         """
-        Modeli değerlendir ve metrikleri hesapla.
+        Evaluate model and calculate metrics.
         
         Returns:
-            Dict: Accuracy, Precision, Recall, F1 skorları
+            Dict: Accuracy, Precision, Recall, F1 scores
         """
         try:
             if not self.is_trained:
-                raise ValueError("Model henüz eğitilmedi")
+                raise ValueError("Model has not been trained yet")
             
             y_pred = self.predict(X_test)
             
-            # String etiketleri encode et
+            # Encode string labels
             if isinstance(y_test[0], str):
                 label_map = {label: idx for idx, label in enumerate(np.unique(y_test))}
                 y_test_encoded = np.array([label_map[y] for y in y_test])
@@ -88,65 +87,65 @@ class BaseClassifier(ABC):
                 'f1': f1_score(y_test_encoded, y_pred_encoded, average='weighted')
             }
             
-            self.logger.info(f"{self.name} Değerlendirme Sonuçları:")
+            self.logger.info(f"{self.name} Evaluation Results:")
             for key, value in metrics.items():
                 self.logger.info(f"  {key}: {value:.4f}")
             
             return metrics
             
         except Exception as e:
-            self.logger.error(f"Değerlendirme hatası: {str(e)}")
+            self.logger.error(f"Evaluation error: {str(e)}")
             raise
     
     @abstractmethod
     def save(self, filepath: str):
-        """Modeli kaydet"""
+        """Save model"""
         pass
     
     @abstractmethod
     def load(self, filepath: str):
-        """Modeli yükle"""
+        """Load model"""
         pass
 
 
 class LogisticRegressionClassifier(BaseClassifier):
     """
-    Logistic Regression tabanlı sınıflandırıcı.
+    Logistic Regression based classifier.
     
-    Özellikler:
-    - Hızlı eğitim ve tahmin
-    - Baseline model olarak kullanım
-    - Explainability (Açıklanabilirlik) yüksek
+    Features:
+    - Fast training and prediction
+    - Use as baseline model
+    - High explainability
     
-    Hiperparametreler:
-    - C: Regularizasyon gücü (default: 1.0)
-    - solver: Optimizasyon algoritması (default: 'lbfgs')
-    - max_iter: Maximum iterasyon sayısı (default: 1000)
+    Hyperparameters:
+    - C: Regularization strength (default: 1.0)
+    - solver: Optimization algorithm (default: 'lbfgs')
+    - max_iter: Maximum number of iterations (default: 1000)
     """
     
     def __init__(self, C: float = 1.0, solver: str = 'lbfgs', max_iter: int = 1000):
         """
-        LogisticRegressionClassifier başlatma.
+        Initialize LogisticRegressionClassifier.
         
         Args:
-            C (float): Regularizasyon gücü (C değeri küçüldükçe daha kuvvetli regularizasyon)
-            solver (str): Optimizasyon algoritması
-            max_iter (int): Maximum iterasyon sayısı
+            C (float): Regularization strength (smaller C means stronger regularization)
+            solver (str): Optimization algorithm
+            max_iter (int): Maximum number of iterations
         """
         super().__init__(name="LogisticRegression")
         self.model = LogisticRegression(C=C, solver=solver, max_iter=max_iter, random_state=42)
         self.label_mapping = None
         
-        self.logger.info(f"LogisticRegression başlatıldı | C={C}, solver={solver}, max_iter={max_iter}")
+        self.logger.info(f"LogisticRegression initialized | C={C}, solver={solver}, max_iter={max_iter}")
     
     def train(self, X_train: np.ndarray, y_train: np.ndarray, **kwargs):
         """
-        Modeli eğit.
+        Train model.
         
         Args:
-            X_train (np.ndarray): Eğitim özellikleri (n_samples x n_features)
-            y_train (np.ndarray): Eğitim etiketleri
-            **kwargs: Ekstra parametreler (kullanılmaz)
+            X_train (np.ndarray): Training features (n_samples x n_features)
+            y_train (np.ndarray): Training labels
+            **kwargs: Extra parameters (not used)
         """
         try:
             self.model.fit(X_train, y_train)
@@ -156,12 +155,12 @@ class LogisticRegressionClassifier(BaseClassifier):
             self.logger.info(f"LogisticRegression eğitimi tamamlandı | Train boyutu: {X_train.shape[0]}")
             
         except Exception as e:
-            self.logger.error(f"Eğitim hatası: {str(e)}")
+            self.logger.error(f"Training errorsı: {str(e)}")
             raise
     
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
-        Tahmin yap.
+        Make predictions.
         
         Args:
             X (np.ndarray): Tahmin özellikleri
@@ -193,9 +192,9 @@ class LogisticRegressionClassifier(BaseClassifier):
         """Modeli joblib formatında kaydet."""
         try:
             joblib.dump(self.model, filepath)
-            self.logger.info(f"Model kaydedildi: {filepath}")
+            self.logger.info(f"Model saved: {filepath}")
         except Exception as e:
-            self.logger.error(f"Model kayıt hatası: {str(e)}")
+            self.logger.error(f"Model kayıt errorsı: {str(e)}")
             raise
     
     def load(self, filepath: str):
@@ -203,9 +202,9 @@ class LogisticRegressionClassifier(BaseClassifier):
         try:
             self.model = joblib.load(filepath)
             self.is_trained = True
-            self.logger.info(f"Model yüklendi: {filepath}")
+            self.logger.info(f"Model loaded: {filepath}")
         except Exception as e:
-            self.logger.error(f"Model yükleme hatası: {str(e)}")
+            self.logger.error(f"Model yükleme errorsı: {str(e)}")
             raise
 
 
@@ -220,7 +219,7 @@ class NeuralNetworkClassifier(BaseClassifier):
     - Hidden Layer 3: 32 nöron + ReLU
     - Output Layer: 2 sınıf (RS/RP) - Softmax ile
     
-    Eğitim:
+    Training:
     - Loss: CrossEntropyLoss
     - Optimizer: Adam (lr=0.001)
     - Batch Size: 32
@@ -230,13 +229,13 @@ class NeuralNetworkClassifier(BaseClassifier):
     def __init__(self, input_size: int, hidden_sizes: List[int] = None, 
                  dropout_rate: float = 0.3, learning_rate: float = 0.001):
         """
-        NeuralNetworkClassifier başlatma.
+        NeuralNetworkClassifier Initialize.
         
         Args:
             input_size (int): Giriş özellik sayısı
             hidden_sizes (list): Hidden layer boyutları (default: [128, 64, 32])
             dropout_rate (float): Dropout oranı
-            learning_rate (float): Öğrenme oranı
+            learning_rate (float): Learning rate
         """
         super().__init__(name="NeuralNetworkClassifier")
         
@@ -258,7 +257,7 @@ class NeuralNetworkClassifier(BaseClassifier):
         self.train_losses = []
         self.val_losses = []
         
-        self.logger.info(f"NeuralNetworkClassifier başlatıldı | "
+        self.logger.info(f"NeuralNetworkClassifier initialized | "
                         f"Input: {input_size}, Hidden: {hidden_sizes}, "
                         f"Device: {self.device}, LR: {learning_rate}")
     
@@ -298,13 +297,13 @@ class NeuralNetworkClassifier(BaseClassifier):
              epochs: int = 50, batch_size: int = 32, 
              X_val: Optional[np.ndarray] = None, y_val: Optional[np.ndarray] = None):
         """
-        Modeli eğit.
+        Train model.
         
         Args:
-            X_train (np.ndarray): Eğitim özellikleri
-            y_train (np.ndarray): Eğitim etiketleri
-            epochs (int): Eğitim devresi sayısı
-            batch_size (int): Batch boyutu
+            X_train (np.ndarray): Training features
+            y_train (np.ndarray): Training labels
+            epochs (int): Training devresi sayısı
+            batch_size (int): Batch size
             X_val (np.ndarray, optional): Doğrulama özellikleri
             y_val (np.ndarray, optional): Doğrulama etiketleri
             
@@ -339,7 +338,7 @@ class NeuralNetworkClassifier(BaseClassifier):
                 val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
                 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
             
-            # Eğitim döngüsü
+            # Training döngüsü
             self.model.train()
             for epoch in range(epochs):
                 epoch_loss = 0.0
@@ -388,12 +387,12 @@ class NeuralNetworkClassifier(BaseClassifier):
                            f"Epochs: {epochs}, Train boyutu: {X_train.shape[0]}")
             
         except Exception as e:
-            self.logger.error(f"Eğitim hatası: {str(e)}")
+            self.logger.error(f"Training errorsı: {str(e)}")
             raise
     
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
-        Tahmin yap.
+        Make predictions.
         
         Args:
             X (np.ndarray): Tahmin özellikleri
@@ -439,9 +438,9 @@ class NeuralNetworkClassifier(BaseClassifier):
         """Modeli PyTorch formatında kaydet."""
         try:
             torch.save(self.model.state_dict(), filepath)
-            self.logger.info(f"Model kaydedildi: {filepath}")
+            self.logger.info(f"Model saved: {filepath}")
         except Exception as e:
-            self.logger.error(f"Model kayıt hatası: {str(e)}")
+            self.logger.error(f"Model kayıt errorsı: {str(e)}")
             raise
     
     def load(self, filepath: str):
@@ -450,18 +449,18 @@ class NeuralNetworkClassifier(BaseClassifier):
             self.model.load_state_dict(torch.load(filepath, map_location=self.device))
             self.model.to(self.device)
             self.is_trained = True
-            self.logger.info(f"Model yüklendi: {filepath}")
+            self.logger.info(f"Model loaded: {filepath}")
         except Exception as e:
-            self.logger.error(f"Model yükleme hatası: {str(e)}")
+            self.logger.error(f"Model yükleme errorsı: {str(e)}")
             raise
 
 
-# Test kodu
+# Test code
 if __name__ == "__main__":
     print("Classification Module - Test")
     print("=" * 50)
     
-    # Örnek veri seti oluştur
+    # Create sample dataset
     np.random.seed(42)
     n_samples = 200
     n_features = 10
@@ -474,8 +473,8 @@ if __name__ == "__main__":
     X_train, X_test = X_data[:split_idx], X_data[split_idx:]
     y_train, y_test = y_data[:split_idx], y_data[split_idx:]
     
-    print(f"\nEğitim seti boyutu: {X_train.shape}")
-    print(f"Test seti boyutu: {X_test.shape}")
+    print(f"\nTraining seti boyutu: {X_train.shape}")
+    print(f"Test set size: {X_test.shape}")
     
     # Logistic Regression Test
     print("\n--- Logistic Regression ---")

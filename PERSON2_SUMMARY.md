@@ -74,8 +74,8 @@
 - ✅ `ModelIntegrator`
   - Modelleri yükle/başlat
   - Pipeline koordinasyonu
-  - `classify_residence()`: Sınıflandırma
-  - `forecast_consumption()`: Tahminleme
+  - `classify_residence()`: Classification
+  - `forecast_consumption()`: Forecasting
 - ✅ `DataPipeline`
   - Kişi 1 verisini işleme
   - Zaman serisi hazırlığı
@@ -164,11 +164,11 @@ predictions = clf.predict(X_test)
 
 ## 📊 Beklenen Performans
 
-### Sınıflandırma
+### Classification
 - **Logistic Regression**: Accuracy ~75-80%
 - **Neural Network**: Accuracy ~80-85%
 
-### Tahminleme
+### Forecasting
 - **Linear**: RMSE ~8-12
 - **ARIMA**: RMSE ~7-10
 - **Prophet**: RMSE ~6-9
@@ -177,7 +177,7 @@ predictions = clf.predict(X_test)
 
 ---
 
-## 🔗 Entegrasyon Noktaları
+## 🔗 Integration Noktaları
 
 ### **Kişi 1 → Kişi 2**
 ```

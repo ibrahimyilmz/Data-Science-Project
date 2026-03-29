@@ -1,14 +1,13 @@
 """
-Evaluator Module - Model Değerlendirme ve Metrikleme
+Evaluator Module - Model Evaluation and Metrics
 ====================================================
-Sınıflandırma ve tahminleme modelleri için kapsamlı 
-değerlendirme araçları sağlar.
+Provides comprehensive evaluation tools for classification and forecasting models.
 
-İçerik:
-    - Confusion Matrix görselleştirmesi
-    - Sınıflandırma metrikleri (Precision, Recall, F1)
-    - Tahminleme metrikleri (MAE, RMSE, R2)
-    - Model karşılaştırma
+Content:
+    - Confusion Matrix visualization
+    - Classification metrics (Precision, Recall, F1)
+    - Forecasting metrics (MAE, RMSE, R2)
+    - Model comparison
 """
 
 import numpy as np
@@ -23,7 +22,7 @@ from sklearn.metrics import (
 import logging
 from typing import Dict, List, Tuple, Optional, Union
 
-# Logger konfigürasyonu
+# Logger configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -54,7 +53,7 @@ class ClassificationEvaluator:
             y_pred_proba (np.ndarray, optional): Tahmin olasılıkları (ROC-AUC için)
             
         Returns:
-            Dict: Tüm metrikler
+            Dict: All metrikler
         """
         try:
             # String etiketleri encode et
@@ -94,7 +93,7 @@ class ClassificationEvaluator:
                 self.metrics['fpr'] = fpr
                 self.metrics['tpr'] = tpr
             
-            self.logger.info(f"Sınıflandırma Değerlendirmesi:")
+            self.logger.info(f"Sınıflandırma Evaluatemesi:")
             self.logger.info(f"  Accuracy: {accuracy:.4f}")
             self.logger.info(f"  Precision: {precision:.4f}")
             self.logger.info(f"  Recall: {recall:.4f}")
@@ -103,7 +102,7 @@ class ClassificationEvaluator:
             return self.metrics
             
         except Exception as e:
-            self.logger.error(f"Değerlendirme hatası: {str(e)}")
+            self.logger.error(f"Evaluateme errorsı: {str(e)}")
             raise
     
     def plot_confusion_matrix(self, labels: Optional[List[str]] = None, 
@@ -137,7 +136,7 @@ class ClassificationEvaluator:
             return fig
             
         except Exception as e:
-            self.logger.error(f"Görselleştirme hatası: {str(e)}")
+            self.logger.error(f"Görselleştirme errorsı: {str(e)}")
             raise
     
     def plot_roc_curve(self, figsize: Tuple[int, int] = (8, 6)) -> plt.Figure:
@@ -174,7 +173,7 @@ class ClassificationEvaluator:
             return fig
             
         except Exception as e:
-            self.logger.error(f"Görselleştirme hatası: {str(e)}")
+            self.logger.error(f"Görselleştirme errorsı: {str(e)}")
             raise
     
     def get_classification_report(self, labels: Optional[List[str]] = None) -> str:
@@ -199,13 +198,13 @@ class ClassificationEvaluator:
             return report
             
         except Exception as e:
-            self.logger.error(f"Rapor oluşturma hatası: {str(e)}")
+            self.logger.error(f"Rapor oluşturma errorsı: {str(e)}")
             raise
 
 
 class ForecastingEvaluator:
     """
-    Tahminleme modelleri için değerlendirme sınıfı.
+    Forecasting modelleri için değerlendirme sınıfı.
     
     Metrikler:
     - MAE (Mean Absolute Error)
@@ -220,7 +219,7 @@ class ForecastingEvaluator:
     
     def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
         """
-        Tahminleme modelini değerlendir.
+        Forecasting modelini değerlendir.
         
         Args:
             y_true (np.ndarray): Gerçek değerler
@@ -248,7 +247,7 @@ class ForecastingEvaluator:
                 'y_pred': y_pred
             }
             
-            self.logger.info(f"Tahminleme Değerlendirmesi:")
+            self.logger.info(f"Forecasting Evaluatemesi:")
             self.logger.info(f"  MAE: {mae:.4f}")
             self.logger.info(f"  RMSE: {rmse:.4f}")
             self.logger.info(f"  MAPE: {mape:.2f}%")
@@ -257,7 +256,7 @@ class ForecastingEvaluator:
             return self.metrics
             
         except Exception as e:
-            self.logger.error(f"Değerlendirme hatası: {str(e)}")
+            self.logger.error(f"Evaluateme errorsı: {str(e)}")
             raise
     
     def plot_predictions(self, figsize: Tuple[int, int] = (12, 6)) -> plt.Figure:
@@ -293,12 +292,12 @@ class ForecastingEvaluator:
             return fig
             
         except Exception as e:
-            self.logger.error(f"Görselleştirme hatası: {str(e)}")
+            self.logger.error(f"Görselleştirme errorsı: {str(e)}")
             raise
     
     def plot_residuals(self, figsize: Tuple[int, int] = (12, 4)) -> plt.Figure:
         """
-        Hataları (residuals) görselleştir.
+        Errorları (residuals) görselleştir.
         
         Args:
             figsize (tuple): Şekil boyutu
@@ -320,22 +319,22 @@ class ForecastingEvaluator:
             axes[0].plot(residuals, marker='o', linestyle='-', linewidth=2)
             axes[0].axhline(y=0, color='r', linestyle='--')
             axes[0].set_xlabel('Zaman')
-            axes[0].set_ylabel('Hata (Residual)')
-            axes[0].set_title('Tahminleme Hataları')
+            axes[0].set_ylabel('Error (Residual)')
+            axes[0].set_title('Forecasting Errorları')
             axes[0].grid(True, alpha=0.3)
             
             # Residuals dağılımı
             axes[1].hist(residuals, bins=30, edgecolor='black')
-            axes[1].set_xlabel('Hata')
+            axes[1].set_xlabel('Error')
             axes[1].set_ylabel('Frekans')
-            axes[1].set_title('Hata Dağılımı')
+            axes[1].set_title('Error Dağılımı')
             axes[1].grid(True, alpha=0.3, axis='y')
             
             fig.tight_layout()
             return fig
             
         except Exception as e:
-            self.logger.error(f"Görselleştirme hatası: {str(e)}")
+            self.logger.error(f"Görselleştirme errorsı: {str(e)}")
             raise
     
     def get_performance_summary(self) -> pd.DataFrame:
@@ -362,7 +361,7 @@ class ForecastingEvaluator:
             return summary
             
         except Exception as e:
-            self.logger.error(f"Özet oluşturma hatası: {str(e)}")
+            self.logger.error(f"Özet oluşturma errorsı: {str(e)}")
             raise
 
 
@@ -370,7 +369,7 @@ class ModelComparator:
     """
     Farklı modelleri karşılaştırma sınıfı.
     
-    Özellikler:
+    Features:
     - Birden fazla modelin metrikleri
     - Modeller arası karşılaştırma
     - Performans raporları
@@ -393,13 +392,13 @@ class ModelComparator:
     
     def compare_forecasting_models(self) -> pd.DataFrame:
         """
-        Tahminleme modellerini karşılaştır.
+        Forecasting modellerini karşılaştır.
         
         Returns:
-            pd.DataFrame: Karşılaştırma tablosu
+            pd.DataFrame: Comparema tablosu
         """
         if not self.results:
-            raise ValueError("Karşılaştırılacak sonuç yok")
+            raise ValueError("Compareılacak sonuç yok")
         
         try:
             comparison_data = {
@@ -417,13 +416,13 @@ class ModelComparator:
             
             comparison_df = pd.DataFrame(comparison_data)
             
-            self.logger.info("Model Karşılaştırması:")
+            self.logger.info("Model Comparison:")
             self.logger.info(f"\n{comparison_df.to_string()}")
             
             return comparison_df
             
         except Exception as e:
-            self.logger.error(f"Karşılaştırma hatası: {str(e)}")
+            self.logger.error(f"Comparema errorsı: {str(e)}")
             raise
     
     def compare_classification_models(self) -> pd.DataFrame:
@@ -431,10 +430,10 @@ class ModelComparator:
         Sınıflandırma modellerini karşılaştır.
         
         Returns:
-            pd.DataFrame: Karşılaştırma tablosu
+            pd.DataFrame: Comparema tablosu
         """
         if not self.results:
-            raise ValueError("Karşılaştırılacak sonuç yok")
+            raise ValueError("Compareılacak sonuç yok")
         
         try:
             comparison_data = {
@@ -454,13 +453,13 @@ class ModelComparator:
             
             comparison_df = pd.DataFrame(comparison_data)
             
-            self.logger.info("Model Karşılaştırması:")
+            self.logger.info("Model Comparison:")
             self.logger.info(f"\n{comparison_df.to_string()}")
             
             return comparison_df
             
         except Exception as e:
-            self.logger.error(f"Karşılaştırma hatası: {str(e)}")
+            self.logger.error(f"Comparema errorsı: {str(e)}")
             raise
     
     def plot_model_comparison(self, model_type: str = 'forecasting', 
@@ -470,7 +469,7 @@ class ModelComparator:
         
         Args:
             model_type (str): 'forecasting' veya 'classification'
-            metric (str): Karşılaştırılacak metrik
+            metric (str): Compareılacak metrik
             figsize (tuple): Şekil boyutu
             
         Returns:
@@ -493,17 +492,17 @@ class ModelComparator:
             bars[best_idx].set_color('green')
             
             ax.set_ylabel(metric.upper())
-            ax.set_title(f'Model Karşılaştırması - {metric.upper()}')
+            ax.set_title(f'Model Comparison - {metric.upper()}')
             ax.grid(True, alpha=0.3, axis='y')
             
             return fig
             
         except Exception as e:
-            self.logger.error(f"Görselleştirme hatası: {str(e)}")
+            self.logger.error(f"Görselleştirme errorsı: {str(e)}")
             raise
 
 
-# Test kodu
+# Test code
 if __name__ == "__main__":
     print("Evaluator Module - Test")
     print("=" * 50)
@@ -519,7 +518,7 @@ if __name__ == "__main__":
     print(f"Accuracy: {clf_metrics['accuracy']:.4f}")
     print(f"F1: {clf_metrics['f1']:.4f}")
     
-    # Tahminleme test
+    # Forecasting test
     print("\n--- Forecasting Evaluator Test ---")
     y_true_fcst = np.random.randn(50) * 10 + 100
     y_pred_fcst = y_true_fcst + np.random.randn(50) * 5
@@ -539,4 +538,4 @@ if __name__ == "__main__":
     comparator.add_result('Model B', fcst_metrics_b)
     
     comparison_df = comparator.compare_forecasting_models()
-    print(f"\nKarşılaştırma:\n{comparison_df}")
+    print(f"\nComparema:\n{comparison_df}")

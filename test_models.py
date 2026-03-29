@@ -20,7 +20,7 @@ try:
     from src.integration_logic import ModelIntegrator, DataPipeline, ResultsFormatter
     print("✓ Tüm modüller başarıyla import edildi")
 except ImportError as e:
-    print(f"✗ Import hatası: {e}")
+    print(f"✗ Import errorsı: {e}")
     sys.exit(1)
 
 
@@ -44,7 +44,7 @@ def test_data_preparation():
         # DataPreprocessor
         preprocessor = DataPreprocessor(test_size=0.2, random_state=42)
         
-        # Dataset dengeleme
+        # Dataset balancing
         df_balanced = preprocessor.balance_dataset(df, label_col='label')
         print(f"✓ Dataset dengelendi: {df_balanced.shape}")
         
@@ -56,14 +56,14 @@ def test_data_preparation():
         )
         print(f"✓ Train/Test split: Train={X_train.shape[0]}, Test={X_test.shape[0]}")
         
-        # Normalizasyon
+        # Normalization
         X_train_norm, X_test_norm = preprocessor.normalize_features(X_train, X_test, method='standard')
-        print(f"✓ Normalizasyon uygulandı: Mean={X_train_norm.mean():.4f}, Std={X_train_norm.std():.4f}")
+        print(f"✓ Normalization uygulandı: Mean={X_train_norm.mean():.4f}, Std={X_train_norm.std():.4f}")
         
         return X_train_norm, X_test_norm, y_train, y_test, True
         
     except Exception as e:
-        print(f"✗ Hata: {e}")
+        print(f"✗ Error: {e}")
         return None, None, None, None, False
 
 
@@ -103,7 +103,7 @@ def test_classification(X_train, X_test, y_train, y_test):
         return True
         
     except Exception as e:
-        print(f"✗ Hata: {e}")
+        print(f"✗ Error: {e}")
         return False
 
 
@@ -150,12 +150,12 @@ def test_forecasting():
         return True
         
     except Exception as e:
-        print(f"✗ Hata: {e}")
+        print(f"✗ Error: {e}")
         return False
 
 
 def test_evaluation(X_test, y_test):
-    """Test: Değerlendirme"""
+    """Test: Evaluateme"""
     print("\n" + "="*60)
     print("TEST 4: EVALUATION")
     print("="*60)
@@ -183,7 +183,7 @@ def test_evaluation(X_test, y_test):
         return True
         
     except Exception as e:
-        print(f"✗ Hata: {e}")
+        print(f"✗ Error: {e}")
         return False
 
 
@@ -224,7 +224,7 @@ def test_integration():
         return True
         
     except Exception as e:
-        print(f"✗ Hata: {e}")
+        print(f"✗ Error: {e}")
         return False
 
 

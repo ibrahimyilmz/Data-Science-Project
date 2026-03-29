@@ -1,17 +1,17 @@
 """
-Integration Logic Module - Kişi 1, 2, 3 Entegrasyonu
+Integration Logic Module - Person 1, 2, 3 Integration
 ====================================================
-Üç kişinin modüllerini birleştiren orta katman.
+Middle layer that combines modules from three team members.
 
-Bağlantı Noktaları:
-    - Kişi 1 (Veri Mimarı): Kümeleme sonuçları (RS/RP etiketleri)
-    - Kişi 2 (Model Mimarı): Sınıflandırma ve tahminleme modelleri
-    - Kişi 3 (Entegratör): Streamlit Dashboard arayüzü
+Connection Points:
+    - Person 1 (Data Architect): Clustering results (RS/RP labels)
+    - Person 2 (Model Architect): Classification and forecasting models
+    - Person 3 (Integrator): Streamlit Dashboard interface
 
-Görevler:
-    - Kişi 1'in özelliklerini modellere hazırla
-    - Sınıflandırma ve tahminleme işlemlerini koordine et
-    - Sonuçları Streamlit için format et
+Tasks:
+    - Prepare Person 1's features for models
+    - Coordinate classification and forecasting operations
+    - Format results for Streamlit
 """
 
 import numpy as np
@@ -23,14 +23,14 @@ from typing import Dict, Tuple, Optional, Any, List
 from pathlib import Path
 import json
 
-# Logger konfigürasyonu
+# Logger configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class ModelIntegrator:
     """
-    Tüm modelleri entegre eden ana sınıf.
+    All modelleri entegre eden ana sınıf.
     
     Sorumluluğu:
     - Modelleri yükle/başlat
@@ -40,7 +40,7 @@ class ModelIntegrator:
     
     def __init__(self, models_dir: str = 'models', config_file: Optional[str] = None):
         """
-        ModelIntegrator başlatma.
+        ModelIntegrator Initialize.
         
         Args:
             models_dir (str): Kayıtlı modellerin dizini
@@ -58,7 +58,7 @@ class ModelIntegrator:
         self.label_encoder = None
         
         self.logger = logger
-        self.logger.info(f"ModelIntegrator başlatıldı | Models Dir: {self.models_dir}")
+        self.logger.info(f"ModelIntegrator initialized | Models Dir: {self.models_dir}")
     
     def _load_config(self, config_file: str) -> Dict[str, Any]:
         """
@@ -73,10 +73,10 @@ class ModelIntegrator:
         try:
             with open(config_file, 'r') as f:
                 config = json.load(f)
-            self.logger.info(f"Konfigürasyon yüklendi: {config_file}")
+            self.logger.info(f"Konfigürasyon loaded: {config_file}")
             return config
         except Exception as e:
-            self.logger.warning(f"Config yükleme hatası: {str(e)} - Varsayılanlar kullanılacak")
+            self.logger.warning(f"Config yükleme errorsı: {str(e)} - Varsayılanlar kullanılacak")
             return {}
     
     def load_classification_model(self, model_path: str, model_type: str = 'logistic'):
@@ -95,20 +95,20 @@ class ModelIntegrator:
                 # PyTorch model yükleme
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 state_dict = torch.load(model_path, map_location=device)
-                # Model yapısı bilindiğini varsayarak (şu an placeholder)
+                # Model architecturesı bilindiğini varsayarak (şu an placeholder)
                 self.classification_model = state_dict
             else:
                 raise ValueError(f"Bilinmeyen model tipi: {model_type}")
             
-            self.logger.info(f"Sınıflandırma modeli yüklendi: {model_path} ({model_type})")
+            self.logger.info(f"Sınıflandırma modeli loaded: {model_path} ({model_type})")
             
         except Exception as e:
-            self.logger.error(f"Model yükleme hatası: {str(e)}")
+            self.logger.error(f"Model yükleme errorsı: {str(e)}")
             raise
     
     def load_forecasting_model(self, model_name: str, model_path: str):
         """
-        Tahminleme modelini yükle.
+        Forecasting modelini yükle.
         
         Args:
             model_name (str): Model adı ('linear', 'arima', 'prophet')
@@ -117,10 +117,10 @@ class ModelIntegrator:
         try:
             import joblib
             self.forecasting_models[model_name] = joblib.load(model_path)
-            self.logger.info(f"Tahminleme modeli yüklendi: {model_name} - {model_path}")
+            self.logger.info(f"Forecasting modeli loaded: {model_name} - {model_path}")
             
         except Exception as e:
-            self.logger.error(f"Model yükleme hatası: {str(e)}")
+            self.logger.error(f"Model yükleme errorsı: {str(e)}")
             raise
     
     def load_feature_scaler(self, scaler_path: str):
@@ -133,10 +133,10 @@ class ModelIntegrator:
         try:
             import joblib
             self.feature_scaler = joblib.load(scaler_path)
-            self.logger.info(f"Feature scaler yüklendi: {scaler_path}")
+            self.logger.info(f"Feature scaler loaded: {scaler_path}")
             
         except Exception as e:
-            self.logger.error(f"Scaler yükleme hatası: {str(e)}")
+            self.logger.error(f"Scaler yükleme errorsı: {str(e)}")
             raise
     
     def classify_residence(self, features: np.ndarray, 
@@ -155,13 +155,13 @@ class ModelIntegrator:
             raise ValueError("Sınıflandırma modeli henüz yüklenmedi")
         
         try:
-            # Özellikleri normalize et (eğer scaler varsa)
+            # Features normalize et (eğer scaler varsa)
             if self.feature_scaler is not None:
                 features_scaled = self.feature_scaler.transform(features)
             else:
                 features_scaled = features
             
-            # Tahmin yap
+            # Make predictions
             predictions = self.classification_model.predict(features_scaled)
             
             # Olasılıkları al (varsa)
@@ -184,7 +184,7 @@ class ModelIntegrator:
             return results
             
         except Exception as e:
-            self.logger.error(f"Sınıflandırma hatası: {str(e)}")
+            self.logger.error(f"Sınıflandırma errorsı: {str(e)}")
             raise
     
     def forecast_consumption(self, timeseries_data: np.ndarray, 
@@ -239,21 +239,21 @@ class ModelIntegrator:
                                           periods=steps, freq='h')
             }
             
-            self.logger.info(f"Tahminleme tamamlandı: {model_name} modeli | "
+            self.logger.info(f"Forecasting tamamlandı: {model_name} modeli | "
                            f"{steps} adım ileri tahmin")
             
             return results
             
         except Exception as e:
-            self.logger.error(f"Tahminleme hatası: {str(e)}")
+            self.logger.error(f"Forecasting error: {str(e)}")
             raise
     
     def get_model_info(self) -> Dict[str, Any]:
         """
-        Yüklü modeller hakkında bilgi al.
+        Yüklü modeller hakkında info al.
         
         Returns:
-            Dict: Model bilgileri
+            Dict: Model infoleri
         """
         return {
             'classification_model': 'Yüklü' if self.classification_model else 'Yüklenmedi',
@@ -269,8 +269,8 @@ class DataPipeline:
     
     İş akışı:
     1. Kişi 1'den etiketlenmiş veri al
-    2. Özellikleri ayıkla
-    3. Normalizasyon yap
+    2. Features ayıkla
+    3. Normalization yap
     4. Modellere gönder
     """
     
@@ -307,19 +307,19 @@ class DataPipeline:
             return X, y, self.feature_names
             
         except Exception as e:
-            self.logger.error(f"Veri işleme hatası: {str(e)}")
+            self.logger.error(f"Veri işleme errorsı: {str(e)}")
             raise
     
     def process_timeseries_for_forecast(self, df: pd.DataFrame, 
                                        value_col: str = 'consumption',
                                        time_col: str = 'timestamp') -> np.ndarray:
         """
-        Tahminleme için zaman serisini hazırla.
+        Forecasting için zaman serisini hazırla.
         
         Args:
-            df (pd.DataFrame): Zaman serisi veri seti
-            value_col (str): Değer sütun adı
-            time_col (str): Zaman sütun adı
+            df (pd.DataFrame): Time series dataset
+            value_col (str): Value column name
+            time_col (str): Time column name
             
         Returns:
             np.ndarray: İşlenmiş zaman serisi
@@ -328,12 +328,12 @@ class DataPipeline:
             df = df.sort_values(by=time_col).reset_index(drop=True)
             timeseries = df[value_col].values
             
-            self.logger.info(f"Zaman serisi hazırlandı: {len(timeseries)} adım")
+            self.logger.info(f"Time series hazırlandı: {len(timeseries)} adım")
             
             return timeseries
             
         except Exception as e:
-            self.logger.error(f"Zaman serisi işleme hatası: {str(e)}")
+            self.logger.error(f"Time series işleme errorsı: {str(e)}")
             raise
 
 
@@ -363,13 +363,13 @@ class ResultsFormatter:
             return df
             
         except Exception as e:
-            logger.error(f"Sonuç biçimlendirme hatası: {str(e)}")
+            logger.error(f"Sonuç biçimlendirme errorsı: {str(e)}")
             raise
     
     @staticmethod
     def format_forecast_results(results: Dict[str, Any]) -> pd.DataFrame:
         """
-        Tahminleme sonuçlarını tablo format'ına çevir.
+        Forecasting sonuçlarını tablo format'ına çevir.
         
         Args:
             results (dict): forecast_consumption sonuçları
@@ -391,11 +391,11 @@ class ResultsFormatter:
             return df
             
         except Exception as e:
-            logger.error(f"Sonuç biçimlendirme hatası: {str(e)}")
+            logger.error(f"Sonuç biçimlendirme errorsı: {str(e)}")
             raise
 
 
-# Test kodu
+# Test code
 if __name__ == "__main__":
     print("Integration Logic Module - Test")
     print("=" * 50)

@@ -1,13 +1,13 @@
 """
-Model Preparation Module - Veri Hazırlığı ve Dengeleme
+Model Preparation Module - Data Preparation and Balancing
 ========================================================
-Kişi 1 (Veri Mimarı) tarafından sağlanan etiketlenmiş veriyi,
-Kişi 2'nin sınıflandırma ve tahminleme modelleri için hazırlar.
+Person 1 (Data Architect) provided labeled data,
+Person 2's classification and forecasting models prepares.
 
-Fonksiyonlar:
-    - balance_dataset(): Test setinde eşit RS/RP dağılımı sağlar
-    - train_test_split_timeseries(): Zaman serisi yapısını korur
-    - prepare_features(): Özellik vektorünü modele hazır hale getirir
+Functions:
+    - balance_dataset(): Ensures equal RS/RP distribution in test set
+    - train_test_split_timeseries(): Preserves time series structure
+    - prepare_features(): Prepares feature vector for model input
 """
 
 import numpy as np
@@ -17,29 +17,29 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import logging
 from typing import Tuple, Dict, Optional, List
 
-# Logger konfigürasyonu
+# Logger configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class DataPreprocessor:
     """
-    Veri ön işleme ve hazırlama sınıfı.
+    Data preprocessing and preparation class.
     
-    Özellikleri:
-    - Dataset dengeleme (RS/RP eşit dağılımı)
-    - Zaman serisi yapısını koruyarak train/test split
-    - Eksik veri işleme
-    - Özellik normalizasyonu
+    Features:
+    - Dataset balancing (equal RS/RP distribution)
+    - Train/test split preserving time series structure
+    - Missing value handling
+    - Feature normalization
     """
     
     def __init__(self, test_size: float = 0.2, random_state: int = 42):
         """
-        DataPreprocessor başlatma.
+        Initialize DataPreprocessor.
         
         Args:
-            test_size (float): Test seti oranı (0-1)
-            random_state (int): Reproducibility için seed değeri
+            test_size (float): Test set ratio (0-1)
+            random_state (int): Random seed for reproducibility
         """
         self.test_size = test_size
         self.random_state = random_state
@@ -48,24 +48,23 @@ class DataPreprocessor:
         
     def balance_dataset(self, df: pd.DataFrame, label_col: str = 'label') -> pd.DataFrame:
         """
-        Test veri setinde eşit sayıda RS ve RP örneği sağlamak için 
-        veri setini dengeler.
+        Balances dataset to ensure equal number of RS and RP examples in test set.
         
-        Yöntem: Minorite sınıfı oversampling, Majority sınıfı undersampling
+        Method: Minority class oversampling, majority class undersampling
         
         Args:
-            df (pd.DataFrame): Orijinal veri seti
-            label_col (str): Etiket sütun adı ('RS' veya 'RP' içerir)
+            df (pd.DataFrame): Original dataset
+            label_col (str): Label column name (contains 'RS' or 'RP')
             
         Returns:
-            pd.DataFrame: Dengeli veri seti
+            pd.DataFrame: Balanced dataset
         """
         try:
-            # Sınıf dağılımını kontrol et
+            # Check class distribution
             class_distribution = df[label_col].value_counts()
-            self.logger.info(f"Orijinal sınıf dağılımı:\n{class_distribution}")
+            self.logger.info(f"Original class distribution:\n{class_distribution}")
             
-            # Her sınıftan aynı sayıda örnek al
+            # Take equal number of samples from each class
             min_samples = class_distribution.min()
             
             balanced_dfs = []
@@ -78,11 +77,11 @@ class DataPreprocessor:
             balanced_df = balanced_df.sample(frac=1, 
                                             random_state=self.random_state).reset_index(drop=True)
             
-            self.logger.info(f"Dengeli sınıf dağılımı:\n{balanced_df[label_col].value_counts()}")
+            self.logger.info(f"Balanced class distribution:\n{balanced_df[label_col].value_counts()}")
             return balanced_df
             
         except Exception as e:
-            self.logger.error(f"Dataset dengeleme hatası: {str(e)}")
+            self.logger.error(f"Dataset balancing error: {str(e)}")
             raise
     
     def train_test_split_timeseries(self, 
@@ -91,25 +90,25 @@ class DataPreprocessor:
                                     features_cols: Optional[List[str]] = None,
                                     label_col: str = 'label') -> Tuple:
         """
-        Zaman serisi yapısını koruyarak train/test split yapar.
+        Performs train/test split while preserving time series structure.
         
-        Yöntem: TimeSeriesSplit kullanarak data leakage'ı önler
+        Method: Uses TimeSeriesSplit to prevent data leakage
         
         Args:
-            df (pd.DataFrame): Veri seti
-            time_col (str, optional): Zaman sütun adı
-            features_cols (list, optional): Özellik sütunları listesi
-            label_col (str): Etiket sütun adı
+            df (pd.DataFrame): Dataset
+            time_col (str, optional): Time column name
+            features_cols (list, optional): List of feature columns
+            label_col (str): Label column name
             
         Returns:
             Tuple: (X_train, X_test, y_train, y_test)
         """
         try:
             if time_col:
-                # Zaman sütununa göre sıralama
+                # Sort by time column
                 df = df.sort_values(by=time_col).reset_index(drop=True)
                 
-            # Eğer features_cols belirtilmemişse tüm sayısal sütunları kullan
+            # If features_cols not specified, use all numeric columns
             if features_cols is None:
                 features_cols = [col for col in df.columns 
                                if col not in [label_col, time_col] and df[col].dtype in [np.float64, np.int64]]
@@ -117,31 +116,31 @@ class DataPreprocessor:
             X = df[features_cols].values
             y = df[label_col].values
             
-            # Zaman serisi bölünmesi
+            # Time series split
             split_point = int(len(df) * (1 - self.test_size))
             
             X_train, X_test = X[:split_point], X[split_point:]
             y_train, y_test = y[:split_point], y[split_point:]
             
-            self.logger.info(f"Train seti boyutu: {X_train.shape[0]}")
-            self.logger.info(f"Test seti boyutu: {X_test.shape[0]}")
-            self.logger.info(f"Özellik sayısı: {X_train.shape[1]}")
+            self.logger.info(f"Training set size: {X_train.shape[0]}")
+            self.logger.info(f"Test set size: {X_test.shape[0]}")
+            self.logger.info(f"Number of features: {X_train.shape[1]}")
             
             return X_train, X_test, y_train, y_test, features_cols
             
         except Exception as e:
-            self.logger.error(f"Train/Test split hatası: {str(e)}")
+            self.logger.error(f"Train/Test split error: {str(e)}")
             raise
     
     def normalize_features(self, X_train: np.ndarray, X_test: np.ndarray, 
                           method: str = 'standard') -> Tuple[np.ndarray, np.ndarray]:
         """
-        Özellik normalizasyonu uygular.
+        Applies feature normalization.
         
         Args:
-            X_train (np.ndarray): Eğitim özelikleri
-            X_test (np.ndarray): Test özellikleri
-            method (str): Normalizasyon yöntemi ('standard' veya 'minmax')
+            X_train (np.ndarray): Training features
+            X_test (np.ndarray): Test features
+            method (str): Normalization method ('standard' or 'minmax')
             
         Returns:
             Tuple: (X_train_normalized, X_test_normalized)
@@ -152,28 +151,28 @@ class DataPreprocessor:
             elif method == 'minmax':
                 self.scaler = MinMaxScaler()
             else:
-                raise ValueError(f"Bilinmeyen normalizasyon yöntemi: {method}")
+                raise ValueError(f"Unknown normalization method: {method}")
             
             X_train_normalized = self.scaler.fit_transform(X_train)
             X_test_normalized = self.scaler.transform(X_test)
             
-            self.logger.info(f"{method.upper()} normalizasyonu uygulandı")
+            self.logger.info(f"{method.upper()} normalization applied")
             return X_train_normalized, X_test_normalized
             
         except Exception as e:
-            self.logger.error(f"Normalizasyon hatası: {str(e)}")
+            self.logger.error(f"Normalization error: {str(e)}")
             raise
     
     def handle_missing_values(self, df: pd.DataFrame, method: str = 'interpolate') -> pd.DataFrame:
         """
-        Eksik verileri işler.
+        Handles missing values.
         
         Args:
-            df (pd.DataFrame): Veri seti
-            method (str): İşleme yöntemi ('interpolate', 'forward_fill', 'backward_fill')
+            df (pd.DataFrame): Dataset
+            method (str): Processing method ('interpolate', 'forward_fill', 'backward_fill')
             
         Returns:
-            pd.DataFrame: Eksik veri işlenmiş veri seti
+            pd.DataFrame: Dataset with missing values handled
         """
         try:
             if method == 'interpolate':
@@ -183,26 +182,26 @@ class DataPreprocessor:
             elif method == 'backward_fill':
                 df_filled = df.fillna(method='bfill').fillna(method='ffill')
             else:
-                raise ValueError(f"Bilinmeyen eksik veri işleme yöntemi: {method}")
+                raise ValueError(f"Unknown missing value handling method: {method}")
             
-            self.logger.info(f"Eksik veriler {method} yöntemi ile işlendi")
+            self.logger.info(f"Missing values handled using {method} method")
             return df_filled
             
         except Exception as e:
-            self.logger.error(f"Eksik veri işleme hatası: {str(e)}")
+            self.logger.error(f"Missing value handling error: {str(e)}")
             raise
     
     def remove_outliers(self, X: np.ndarray, method: str = 'iqr', threshold: float = 3.0) -> np.ndarray:
         """
-        Aykırı değerleri tespit ve çıkarır.
+        Detects and removes outliers.
         
         Args:
-            X (np.ndarray): Veri (n_samples x n_features)
-            method (str): Yöntem ('iqr' veya 'zscore')
-            threshold (float): Eşik değeri
+            X (np.ndarray): Data (n_samples x n_features)
+            method (str): Method ('iqr' or 'zscore')
+            threshold (float): Threshold value
             
         Returns:
-            np.ndarray: Aykırı değerler çıkarılmış veri
+            np.ndarray: Data with outliers removed
         """
         try:
             if method == 'iqr':
@@ -217,15 +216,15 @@ class DataPreprocessor:
                 z_scores = np.abs((X - np.mean(X, axis=0)) / np.std(X, axis=0))
                 mask = np.all(z_scores < threshold, axis=1)
             else:
-                raise ValueError(f"Bilinmeyen aykırı değer yöntemi: {method}")
+                raise ValueError(f"Unknown outlier removal method: {method}")
             
             removed_count = X.shape[0] - mask.sum()
-            self.logger.info(f"Aykırı değerler çıkarıldı: {removed_count} örnek")
+            self.logger.info(f"Outliers removed: {removed_count} samples")
             
             return X[mask]
             
         except Exception as e:
-            self.logger.error(f"Aykırı değer çıkarma hatası: {str(e)}")
+            self.logger.error(f"Outlier removal error: {str(e)}")
             raise
 
 
@@ -233,17 +232,17 @@ def create_lag_features(data: pd.DataFrame,
                         value_col: str, 
                         lags: List[int] = [1, 7, 24]) -> pd.DataFrame:
     """
-    Tahminleme modeli için gecikmeli (lag) özellikleri oluşturur.
+    Creates lagged (lag) features for forecasting model.
     
-    Örn: Dünün tüketimi (lag=24), Geçen haftanın (lag=7) vb.
+    Example: Yesterday's consumption (lag=24), last week's (lag=7), etc.
     
     Args:
-        data (pd.DataFrame): Zaman serisi veri seti
-        value_col (str): Değer sütun adı
-        lags (list): Oluşturulacak lag değerleri (saat cinsinden)
+        data (pd.DataFrame): Time series dataset
+        value_col (str): Value column name
+        lags (list): Lag values to create (in hours)
         
     Returns:
-        pd.DataFrame: Lag özelikleri eklenen veri seti
+        pd.DataFrame: Dataset with lag features added
     """
     try:
         df = data.copy()
@@ -251,27 +250,27 @@ def create_lag_features(data: pd.DataFrame,
         for lag in lags:
             df[f'{value_col}_lag_{lag}'] = df[value_col].shift(lag)
         
-        # İlk satırların NaN değerlerini kaldır
+        # Remove NaN values from first rows
         df = df.dropna()
         
-        logger.info(f"Lag özelikleri oluşturuldu: {lags}")
+        logger.info(f"Lag features created: {lags}")
         return df
         
     except Exception as e:
-        logger.error(f"Lag özelikleri oluşturma hatası: {str(e)}")
+        logger.error(f"Lag features creation error: {str(e)}")
         raise
 
 
-# Test kodu
+# Test code
 if __name__ == "__main__":
     print("Model Preparation Module - Test")
     print("=" * 50)
     
-    # Örnek veri seti oluştur
+    # Create sample dataset
     np.random.seed(42)
     n_samples = 1000
     
-    # Sahte veri üret
+    # Generate fake data
     X_data = np.random.randn(n_samples, 10)
     y_data = np.random.choice(['RS', 'RP'], n_samples)
     
@@ -279,15 +278,15 @@ if __name__ == "__main__":
     df_test['label'] = y_data
     df_test['timestamp'] = pd.date_range('2024-01-01', periods=n_samples, freq='h')
     
-    print(f"\nOrijinal veri seti şekli: {df_test.shape}")
-    print(f"Sınıf dağılımı:\n{df_test['label'].value_counts()}")
+    print(f"\nOriginal dataset shape: {df_test.shape}")
+    print(f"Class distribution:\n{df_test['label'].value_counts()}")
     
-    # DataPreprocessor'ı test et
+    # Test DataPreprocessor
     preprocessor = DataPreprocessor(test_size=0.2, random_state=42)
     
-    # Dataset dengeleme
+    # Dataset balancing
     df_balanced = preprocessor.balance_dataset(df_test)
-    print(f"\nDengeli veri seti şekli: {df_balanced.shape}")
+    print(f"\nBalanced dataset shape: {df_balanced.shape}")
     
     # Train/Test split
     X_train, X_test, y_train, y_test, feature_names = preprocessor.train_test_split_timeseries(
@@ -296,10 +295,10 @@ if __name__ == "__main__":
         label_col='label'
     )
     
-    print(f"\nX_train şekli: {X_train.shape}")
-    print(f"X_test şekli: {X_test.shape}")
+    print(f"\nX_train shape: {X_train.shape}")
+    print(f"X_test shape: {X_test.shape}")
     
-    # Normalizasyon
+    # Normalization
     X_train_norm, X_test_norm = preprocessor.normalize_features(X_train, X_test, method='standard')
-    print(f"\nX_train (normalized) ortalaması: {X_train_norm.mean():.4f}")
-    print(f"X_train (normalized) standart sapması: {X_train_norm.std():.4f}")
+    print(f"\nX_train (normalized) mean: {X_train_norm.mean():.4f}")
+    print(f"X_train (normalized) std: {X_train_norm.std():.4f}")

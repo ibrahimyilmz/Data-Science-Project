@@ -9,7 +9,7 @@ Person 1 (Data Architect):
     - features: Davranışsal özellikler
 
 Person 2 (Model Architect):
-    - model_prep: Veri hazırlığı ve dengeleme
+    - model_prep: Veri hazırlığı ve balancing
     - classification: Sınıflandırma modelleri (RS/RP)
     - forecasting: Tahminleme modelleri (Linear, ARIMA, Prophet)
     - evaluator: Model değerlendirme araçları

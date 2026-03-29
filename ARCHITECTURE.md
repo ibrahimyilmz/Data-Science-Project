@@ -6,8 +6,8 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                         PERSON 2 (MODEL ARCHITECT)             │
 │                                                                   │
-│  INPUT: Etiketlenmiş Veri (Person 1)                            │
-│  OUTPUT: Eğitilmiş Modeller → Person 3 (Streamlit)             │
+│  INPUT: Etiketlenmiş Data (Person 1)                            │
+│  OUTPUT: Eğitilmiş Models → Person 3 (Streamlit)             │
 └─────────────────────────────────────────────────────────────────┘
 
                             ↓

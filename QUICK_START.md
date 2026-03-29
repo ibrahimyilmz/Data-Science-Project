@@ -1,4 +1,4 @@
-# QUICK START - Kişi 2 (Model Mimarı) İçin Hızlı Başlangıç
+# QUICK START - Person 2 (Model Mimarı) İçin Quick Start
 
 ## 🚀 5 Dakika İçinde Başlayın
 
@@ -34,7 +34,7 @@ python train_all_models.py
 ```
 
 Bu script:
-1. Sahte veri oluşturur (Kişi 1'in verisi geldiğinde değiştirilecek)
+1. Sahte veri oluşturur (Person 1'in verisi geldiğinde değiştirilecek)
 2. Veriyi dengeleyip normalize eder
 3. **2 sınıflandırma modeli** eğitir:
    - Logistic Regression
@@ -164,14 +164,14 @@ Project/
 
 ## 🤝 Ekip İntegrasyonu
 
-### Kişi 1'den Veri Al
+### Person 1'den Veri Al
 
 ```python
 df_from_person1 = pd.read_csv('data/person1_features.csv')
 # Sütunlar: feature_1, feature_2, ..., label (RS/RP), timestamp
 ```
 
-### Modelleri Kişi 3'e Gönder
+### Modelleri Person 3'e Gönder
 
 ```python
 from src.integration_logic import ModelIntegrator
@@ -180,7 +180,7 @@ integrator = ModelIntegrator(models_dir='models')
 integrator.load_classification_model('models/classification_logistic_regression.pkl')
 integrator.load_forecasting_model('arima', 'models/forecasting_arima.pkl')
 
-# Kişi 3 bunu Streamlit Dashboard'da kullanabilir
+# Person 3 bunu Streamlit Dashboard'da kullanabilir
 ```
 
 ---
