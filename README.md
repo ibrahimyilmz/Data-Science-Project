@@ -249,7 +249,8 @@ print(f"RMSE: {fcst_metrics['rmse']:.2f}")
 print(f"R2: {fcst_metrics['r2']:.4f}")
 ```
 
-# Model Karşılaştırma
+### Model Comparison
+```python
 comparator = ModelComparator()
 comparator.add_result('Model A', metrics_a)
 comparator.add_result('Model B', metrics_b)
@@ -262,83 +263,83 @@ fig = comparator.plot_model_comparison(model_type='forecasting', metric='mae')
 
 ### 5. **Integration Logic** (`src/integration_logic.py`)
 
-Üç kişinin çalışmasını birleştiren entegrasyon katmanı.
+Integration layer that combines the work of three team members.
 
-#### Sınıflar:
-- **`ModelIntegrator`**: Tüm modelleri yükle ve çalıştır
-  - Modelleryi load et
-  - Pipeline'ı koordine et
-  - Sonuçları döndür
+#### Classes:
+- **`ModelIntegrator`**: Load and run all models
+  - Load models
+  - Coordinate pipeline
+  - Return results
 
-- **`DataPipeline`**: Person 1'in verisini hazırla
-  - `process_person1_data()`: Etiketlenmiş veriyi işle
-  - `process_timeseries_for_forecast()`: Zaman serisini hazırla
+- **`DataPipeline`**: Prepare Person 1's data
+  - `process_person1_data()`: Process labeled data
+  - `process_timeseries_for_forecast()`: Prepare time series
 
-- **`ResultsFormatter`**: Sonuçları Streamlit'e hazırlayan format
+- **`ResultsFormatter`**: Format results for Streamlit
 
-#### Kullanım Örneği:
+#### Usage Example:
 ```python
 from src.integration_logic import ModelIntegrator, DataPipeline, ResultsFormatter
 
-# 1. Integrator başlatması
+# 1. Initialize Integrator
 integrator = ModelIntegrator(models_dir='models')
 
-# 2. Modelleri yükle
+# 2. Load models
 integrator.load_classification_model('models/lr_classifier.pkl', model_type='logistic')
 integrator.load_forecasting_model('arima', 'models/arima_forecaster.pkl')
 integrator.load_feature_scaler('models/scaler.pkl')
 
-# 3. Person 1'in verisini işle
+# 3. Process Person 1's data
 pipeline = DataPipeline()
 X_features, y_labels, feature_names = pipeline.process_person1_data(df_from_person1)
 
-# 4. Sınıflandırma yap
+# 4. Classify residences
 clf_results = integrator.classify_residence(X_features, feature_names)
 clf_df = ResultsFormatter.format_classification_results(clf_results)
 
-# 5. Tahminleme yap
+# 5. Forecast consumption
 timeseries = pipeline.process_timeseries_for_forecast(df_timeseries)
 fcst_results = integrator.forecast_consumption(timeseries, steps=24, model_name='arima')
 fcst_df = ResultsFormatter.format_forecast_results(fcst_results)
 
-# 6. Streamlit'e gönder (Person 3 tarafından kullanılacak)
+# 6. Send to Streamlit (to be used by Person 3)
 print(clf_df)
 print(fcst_df)
 ```
 
 ---
 
-## 📊 Veri Akışı
+## 📊 Data Flow
 
 ```
-Person 1 (Ham Veri)
+Person 1 (Raw Data)
     ↓
-    → Özellikleri çıkar (PCA, Fourier, vb.)
-    → RS/RP etiketleri ekle
+    → Extract features (PCA, Fourier, etc.)
+    → Add RS/RP labels
     ↓
-LABELED DATA → Person 2 (Model Eğitimi)
+LABELED DATA → Person 2 (Model Training)
                 ↓
-                1. DataPreprocessor: Dengeleme + Normalizasyon
-                2. Classification: RS/RP Sınıflandırması
-                3. Forecasting: 24 saat ileri tahminleme
-                4. Evaluator: Performans değerlendirmesi
-                5. Modelleri kaydet (models/)
+                1. DataPreprocessor: Balancing + Normalization
+                2. Classification: RS/RP Classification
+                3. Forecasting: 24-hour ahead forecasting
+                4. Evaluator: Performance evaluation
+                5. Save models (models/)
                 ↓
 TRAINED MODELS → Person 3 (Streamlit Dashboard)
                 ↓
-                → İnteraktif UI (Tabs)
-                → Dinamik Görselleştirme
-                → Kullanıcı girişi
+                → Interactive UI (Tabs)
+                → Dynamic Visualization
+                → User Input
 ```
 
 ---
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Quick Start
 
-### Minimal Örnek
+### Minimal Example
 
 ```python
-# 1. Kütüphaneleri import et
+# 1. Import libraries
 from src.model_prep import DataPreprocessor
 from src.classification import LogisticRegressionClassifier
 from src.evaluator import ClassificationEvaluator
@@ -346,7 +347,7 @@ from src.evaluator import ClassificationEvaluator
 import numpy as np
 import pandas as pd
 
-# 2. Sahte veri oluştur (Person 1 gerçek veriyi sağlayacak)
+# 2. Create synthetic data (Person 1 will provide real data)
 np.random.seed(42)
 X_data = np.random.randn(1000, 15)
 y_data = np.random.choice(['RS', 'RP'], 1000)
@@ -354,43 +355,44 @@ y_data = np.random.choice(['RS', 'RP'], 1000)
 df = pd.DataFrame(X_data, columns=[f'feature_{i}' for i in range(15)])
 df['label'] = y_data
 
-# 3. Veriyi hazırla
+# 3. Prepare data
 prep = DataPreprocessor(test_size=0.2, random_state=42)
 df_balanced = prep.balance_dataset(df)
 X_train, X_test, y_train, y_test, features = prep.train_test_split_timeseries(df_balanced)
 X_train, X_test = prep.normalize_features(X_train, X_test)
 
-# 4. Model eğit
+# 4. Train model
 clf = LogisticRegressionClassifier(C=1.0)
 clf.train(X_train, y_train)
 
-# 5. Değerlendir
+# 5. Evaluate
 evaluator = ClassificationEvaluator()
 metrics = evaluator.evaluate(y_test, clf.predict(X_test))
 
 print(f"Accuracy: {metrics['accuracy']:.4f}")
 print(f"F1 Score: {metrics['f1']:.4f}")
 
-# 6. Modeli kaydet
+# 6. Save model
 clf.save('models/classifier.pkl')
 ```
 
 ---
 
-## 📝 Teknik Notlar
+## 📝 Technical Notes
 
-### Hiperparametreler (Optimize Edildi)
+### Hyperparameters (Optimized)
 
-| Model | Parametre | Değer | Neden |
-|-------|-----------|-------|-------|
-| Logistic Regression | C | 1.0 | Varsayılan regularizasyon |
-| | solver | lbfgs | Binary classification için uygun |
-| | max_iter | 1000 | Convergence güvencesi |
+| Model | Parameter | Value | Reason |
+|-------|-----------|-------|--------|
+| Logistic Regression | C | 1.0 | Default regularization |
+| | solver | lbfgs | Suitable for binary classification |
+| | max_iter | 1000 | Convergence assurance |
 | Neural Network | Hidden Sizes | [128, 64, 32] | Progressive bottleneck |
-| | Dropout | 0.3 | Overfitting önleme |
-| | Learning Rate | 0.001 | Stabil öğrenme |
-| | Epochs | 50 | Overfitting dengesi |
-| | Batch Size | 32 | Memory/convergence dengesi |
+| | Dropout | 0.3 | Overfitting prevention |
+| | Learning Rate | 0.001 | Stable learning |
+| | Epochs | 50 | Overfitting balance |
+| | Batch Size | 32 | Memory/convergence balance |
+
 | ARIMA | Order | (1,1,1) | AIC/BIC optimizasyon sonucu |
 | Prophet | Changepoint Prior | 0.05 | Sensible trend changes |
 | | Seasonality Scale | 10 | Güçlü sezonallik |

@@ -1,8 +1,8 @@
-# QUICK START - Person 2 (Model Mimarı) İçin Quick Start
+# QUICK START - Person 2 (Model Architect) - Get Started Quickly
 
-## 🚀 5 Dakika İçinde Başlayın
+## 🚀 Start in 5 Minutes
 
-### Step 1: Kurulum
+### Step 1: Setup
 
 ```bash
 # Virtual environment
@@ -10,61 +10,61 @@ python -m venv venv
 venv\Scripts\activate  # Windows
 source venv/bin/activate  # macOS/Linux
 
-# Kütüphaneleri yükle
+# Install libraries
 pip install -r requirements.txt
 ```
 
-### Step 2: Modülleri Test Et
+### Step 2: Test Modules
 
 ```bash
 python test_models.py
 ```
 
-Çıktı:
+Output:
 ```
-✓ Tüm modüller başarıyla import edildi
+✓ All modules successfully imported
 ...
-🎉 Tüm testler başarılı!
+🎉 All tests passed!
 ```
 
-### Step 3: Eksiksiz Eğitim Döngüsünü Çalıştır
+### Step 3: Run Complete Training Pipeline
 
 ```bash
 python train_all_models.py
 ```
 
-Bu script:
-1. Sahte veri oluşturur (Person 1'in verisi geldiğinde değiştirilecek)
-2. Veriyi dengeleyip normalize eder
-3. **2 sınıflandırma modeli** eğitir:
+This script:
+1. Creates synthetic data (will be replaced when Person 1's data arrives)
+2. Balances and normalizes the data
+3. **Trains 2 classification models**:
    - Logistic Regression
    - Neural Network
-4. **3 tahminleme modeli** eğitir:
+4. **Trains 3 forecasting models**:
    - Linear Forecaster
    - ARIMA
    - Prophet
-5. Tüm modelleri `models/` dizinine kaydeder
-6. `training_report.json` raporu oluşturur
+5. Saves all models to `models/` directory
+6. Generates `training_report.json` report
 
 ---
 
-## 📚 Temel Kullanım Örnekleri
+## 📚 Basic Usage Examples
 
-### Örnek 1: Sınıflandırma Modeli
+### Example 1: Classification Model
 
 ```python
 from src.classification import LogisticRegressionClassifier
 import numpy as np
 
-# Veri oluştur
+# Create data
 X_train = np.random.randn(100, 10)
 y_train = np.random.choice(['RS', 'RP'], 100)
 
-# Model oluştur ve eğit
+# Create and train model
 clf = LogisticRegressionClassifier(C=1.0)
 clf.train(X_train, y_train)
 
-# Tahmin yap
+# Make predictions
 X_test = np.random.randn(20, 10)
 predictions = clf.predict(X_test)
 probabilities = clf.predict_proba(X_test)
@@ -72,32 +72,32 @@ probabilities = clf.predict_proba(X_test)
 print(predictions)  # ['RS', 'RP', 'RS', ...]
 print(probabilities)  # [[0.8, 0.2], [0.3, 0.7], ...]
 
-# Model kaydet
+# Save model
 clf.save('models/my_classifier.pkl')
 ```
 
-### Örnek 2: Tahminleme Modeli
+### Example 2: Forecasting Model
 
 ```python
 from src.forecasting import ARIMAForecaster
 import numpy as np
 
-# Zaman serisi veri
+# Time series data
 timeseries = np.random.randn(100) * 10 + 100
 
-# Model oluştur ve eğit
+# Create and train model
 model = ARIMAForecaster(order=(1, 1, 1))
 model.fit(timeseries)
 
-# Tahmin yap
+# Make forecast
 forecast = model.forecast(steps=24)
 print(forecast)  # [98.5, 99.2, 100.1, ...]
 
-# Güven aralıkları
+# Confidence intervals
 lower, upper = model.get_confidence_intervals(steps=24, alpha=0.05)
 ```
 
-### Örnek 3: Model Değerlendirmesi
+### Example 3: Model Evaluation
 
 ```python
 from src.evaluator import ClassificationEvaluator
@@ -115,30 +115,30 @@ print(f"F1: {metrics['f1']:.4f}")
 
 ---
 
-## 📂 Dosya Rehberi
+## 📂 File Guide
 
 ```
 Project/
 ├── src/
-│   ├── model_prep.py          ← Veri hazırlığı
-│   ├── classification.py      ← Sınıflandırma modelleri
-│   ├── forecasting.py         ← Tahminleme modelleri
-│   ├── evaluator.py           ← Performans değerlendirmesi
-│   └── integration_logic.py   ← Entegrasyon
-├── models/                     ← Eğitilmiş modeller buraya kaydedilir
-├── data/                       ← Veri setleri buraya konur
-├── logs/                       ← Log dosyaları
-├── test_models.py              ← Modül testleri
-├── train_all_models.py         ← Eksiksiz eğitim script'i
-├── requirements.txt            ← Python kütüphaneleri
-└── README.md                   ← Detaylı dokümantasyon
+│   ├── model_prep.py          ← Data preparation
+│   ├── classification.py      ← Classification models
+│   ├── forecasting.py         ← Forecasting models
+│   ├── evaluator.py           ← Performance evaluation
+│   └── integration_logic.py   ← Integration
+├── models/                     ← Trained models saved here
+├── data/                       ← Datasets placed here
+├── logs/                       ← Log files
+├── test_models.py              ← Module tests
+├── train_all_models.py         ← Complete training script
+├── requirements.txt            ← Python libraries
+└── README.md                   ← Detailed documentation
 ```
 
 ---
 
-## ⚙️ Konfigürasyon
+## ⚙️ Configuration
 
-`config.json` dosyasında hiperparametreleri değiştirebilirsiniz:
+You can modify hyperparameters in `config.json`:
 
 ```json
 {
