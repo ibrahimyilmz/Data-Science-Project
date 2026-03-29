@@ -31,6 +31,53 @@ def extract_consumption_features(
 	power_col: str = "power_kw",
 ) -> pd.DataFrame:
 	"""Extract behavioral features from consumption data."""
+	# Convert to proper types at the beginning
+	df = df.copy()
+	
+	# Convert power to numeric
+	try:
+		df[power_col] = pd.to_numeric(df[power_col], errors='coerce')
+	except Exception as e:
+		raise ValueError(f"Failed to convert '{power_col}' to numeric. Error: {str(e)}")
+	
+	# Convert timestamp to datetime with multiple format attempts
+	try:
+		# Try multiple date formats
+		formats = ['%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y', '%Y/%m/%d']
+		datetime_converted = False
+		
+		for fmt in formats:
+			try:
+				df[time_col] = pd.to_datetime(df[time_col], format=fmt, errors='coerce')
+				non_null_count = df[time_col].notna().sum()
+				if non_null_count > len(df) * 0.8:  # At least 80% converted successfully
+					datetime_converted = True
+					break
+			except:
+				continue
+		
+		# If none of the formats worked, try pandas auto-detection
+		if not datetime_converted:
+			df[time_col] = pd.to_datetime(df[time_col], infer_datetime_format=True, errors='coerce')
+			non_null_count = df[time_col].notna().sum()
+			if non_null_count <= len(df) * 0.5:
+				raise ValueError(f"Could not convert '{time_col}' to datetime")
+	
+	except Exception as e:
+		raise ValueError(f"Failed to convert '{time_col}' to datetime. Tried formats: YYYY-MM-DD HH:MM:SS, YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY. Error: {str(e)}")
+	
+	# Check for invalid values
+	if df[time_col].isna().any():
+		invalid_count = df[time_col].isna().sum()
+		raise ValueError(f"Found {invalid_count} invalid datetime values in '{time_col}'. Ensure dates are in a standard format (e.g., 2023-11-01 or 01/11/2023)")
+	
+	if df[power_col].isna().any():
+		invalid_count = df[power_col].isna().sum()
+		raise ValueError(f"Found {invalid_count} invalid numeric values in '{power_col}'. All values must be numbers.")
+	
+	# Now safely use .dt accessor
+	df["hour"] = df[time_col].dt.hour
+	
 	features = []
 
 	for customer_id, group in df.groupby(customer_col):
@@ -39,8 +86,6 @@ def extract_consumption_features(
 
 		power_values = group[power_col].values
 		df_group = group.copy()
-		df_group[time_col] = pd.to_datetime(df_group[time_col])
-		df_group["hour"] = df_group[time_col].dt.hour
 
 		features_dict = {"customer_id": customer_id}
 

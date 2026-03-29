@@ -58,11 +58,30 @@ def render_clustering_tab():
                     if missing_cols:
                         st.error(f"❌ Missing columns: {', '.join(missing_cols)}\n\nExpected: customer_id, timestamp, power_kw")
                     else:
+                        # Validate data types
+                        df_check = df.copy()
+                        
+                        # Check power_kw is numeric
+                        try:
+                            pd.to_numeric(df_check['power_kw'], errors='coerce')
+                            if pd.to_numeric(df_check['power_kw'], errors='coerce').isna().sum() > len(df_check) * 0.5:
+                                st.error("❌ Error: More than 50% of 'power_kw' values are non-numeric. Please check your data.")
+                        except:
+                            st.error("❌ Error: 'power_kw' column must contain numeric values.")
+                        
+                        # Try datetime conversion to validate format
+                        try:
+                            pd.to_datetime(df_check['timestamp'], errors='coerce')
+                            if pd.to_datetime(df_check['timestamp'], errors='coerce').isna().sum() > len(df_check) * 0.5:
+                                st.error("❌ Error: More than 50% of 'timestamp' values have invalid datetime format.\n\nExpected format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS")
+                        except:
+                            st.error("❌ Error: 'timestamp' column has invalid format.")
+                        
                         features_df = extract_consumption_features(df)
                         st.session_state.features = features_df
                         st.success(f"✅ Extracted {len(features_df)} customer profiles")
                 except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
+                    st.error(f"❌ Error: {str(e)}\n\n💡 Hint: Check that your data has correct column formats:\n- customer_id: numeric\n- timestamp: date/datetime\n- power_kw: numeric")
 
         if st.session_state.features is not None:
             st.divider()
