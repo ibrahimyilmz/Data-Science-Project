@@ -147,7 +147,13 @@ class ForecastingModels:
         model = ARIMA(timeseries, order=order)
         results = model.fit()
         forecast = results.get_forecast(steps=forecast_steps)
-        forecast_values = forecast.predicted_mean.values
+        
+        # Handle both numpy arrays and pandas Series
+        forecast_values = forecast.predicted_mean
+        if hasattr(forecast_values, 'values'):
+            forecast_values = forecast_values.values
+        else:
+            forecast_values = np.asarray(forecast_values)
 
         return {
             "forecast": forecast_values,

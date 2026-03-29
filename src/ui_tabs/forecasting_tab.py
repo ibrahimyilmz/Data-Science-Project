@@ -25,8 +25,22 @@ def render_forecasting_tab():
         else:
             df = st.session_state.synthetic_data.groupby("hour")["power_kw"].mean().reset_index()
 
-        power_col = "power_kw" if "power_kw" in df.columns else df.columns[1]
-        timeseries = df[power_col].values
+        # Find power column intelligently
+        power_cols = [col for col in df.columns if 'power' in col.lower() or 'consumption' in col.lower() or 'valeur' in col.lower()]
+        
+        if power_cols:
+            power_col = power_cols[0]
+        elif "power_kw" in df.columns:
+            power_col = "power_kw"
+        else:
+            power_col = df.columns[1] if len(df.columns) > 1 else df.columns[0]
+        
+        # Extract timeseries values (handle both Series and arrays)
+        power_data = df[power_col]
+        if isinstance(power_data, np.ndarray):
+            timeseries = power_data
+        else:
+            timeseries = power_data.values
 
         if st.button("🚀 Forecast", key="forecast_btn"):
             with st.spinner("Generating forecast..."):
