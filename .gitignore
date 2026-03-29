@@ -1,0 +1,127 @@
+# Python/Data Science .gitignore
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Jupyter
+.ipynb_checkpoints/
+profile_default/
+.ipython/
+
+# pyenv
+.python-version
+
+# Environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs / editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# mypy
+.mypy_cache/
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+
+# Data and model artifacts (adjust if you commit datasets)
+data/
+raw_data/
+processed_data/
+models/
+*.csv
+*.tsv
+*.parquet
+*.h5
+*.hdf5
+*.db
+*.sqlite
+*.sqlite3
+*.ckpt
+*.pt
+*.pth
+*.joblib
+*.pkl
+*.pickle
+
+# Notebook checkpoints and outputs
+*.nb.html
+
+# Editor swap/temp files
+*~
+*.swp
+
+# Docker / env files
+docker-compose.override.yml
+.env
+.env.*.local
+
+# Misc
+*.log
+*.aux
+*.out
+*.toc
