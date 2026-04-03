@@ -449,6 +449,6 @@ clf.save('models/classifier.pkl')
 | | Epochs | 50 | Overfitting balance |
 | | Batch Size | 32 | Memory/convergence balance |
 
-| ARIMA | Order | (1,1,1) | AIC/BIC optimizasyon sonucu |
+| ARIMA | Order | (1,1,1) |
 | Prophet | Changepoint Prior | 0.05 | Sensible trend changes |
-| | Seasonality Scale | 10 | Güçlü sezonallik |
+| | Seasonality Scale | 10 | 
