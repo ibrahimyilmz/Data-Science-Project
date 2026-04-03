@@ -4,7 +4,8 @@
 
 ## 📋 Project Overview
 
-By analyzing energy consumption data from Enedis:
+By analyzing energy consumption data from Enedis dataset RES2-6-9kVA which is available on "https://opendata.enedis.fr/datasets/courbes-de-charges-fictives-res2-6-9", we have implemented the followings:
+
 1. **Classify houses**: Determine whether they are primary (RP) or secondary (RS) residences
 2. **Forecast future consumption**: Predict energy consumption 24 hours ahead
 3. **Interactive Dashboard**: Provide a Streamlit-based user interface
